@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cotizador de Comisiones — Noviembre</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue:#1469DC; --blue-dark:#0d4fa3; --blue-light:#e8f1fc; --blue-mid:#c2d9f8;
+      --orange:#f97316; --orange-light:#fff4ed; --green:#16a34a; --green-light:#dcfce7;
+      --red:#dc2626; --red-light:#fee2e2;
+      --text:#0f1e35; --muted:#64748b; --border:#e2e8f0; --bg:#f4f7fb; --white:#fff;
+      --radius:12px; --radius-sm:8px;
+    }
+    body { font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding-bottom:3rem; }
+
+    /* HEADER */
+    .top-bar { background:#121b2a; padding:0 36px; display:flex; align-items:center; justify-content:space-between; height:68px; box-shadow:0 2px 12px rgba(0,0,0,.35); }
+    .top-bar-left { display:flex; align-items:center; gap:20px; }
+    .top-bar img { height:44px; border-radius:6px; }
+    .top-bar-divider { width:1px; height:32px; background:rgba(255,255,255,.3); }
+    .top-bar-text h1 { color:#fff; font-size:1rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; }
+    .top-bar-text p { color:rgba(255,255,255,.7); font-size:.72rem; margin-top:2px; }
+    .top-bar-badge { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25); color:#fff; font-size:.7rem; font-weight:600; padding:4px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:.06em; }
+
+    .container { max-width:1020px; margin:0 auto; padding:2rem 1.5rem; }
+    .section-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--blue); margin:1.75rem 0 .9rem; display:flex; align-items:center; gap:8px; }
+    .section-label:first-child { margin-top:0; }
+    .section-label::after { content:''; flex:1; height:1px; background:var(--blue-mid); }
+    .layout { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; align-items:start; }
+
+    /* CARDS */
+    .card { background:var(--white); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+    .card-header { background:var(--blue); color:#fff; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; padding:10px 18px; display:flex; align-items:center; gap:8px; justify-content:space-between; }
+    .card-header .hl { display:flex; align-items:center; gap:8px; }
+    .card-header-icon { width:18px; height:18px; background:rgba(255,255,255,.2); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:10px; }
+    .card-body { padding:1.1rem 1.25rem; }
+
+    /* INPUTS */
+    .input-group { display:flex; flex-direction:column; gap:6px; }
+    .input-group label, .lbl { font-size:.68rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    input[type="number"] { width:100%; padding:8px 12px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:.95rem; font-family:inherit; color:var(--text); outline:none; transition:border-color .15s, box-shadow .15s; background:#fafbfc; -moz-appearance:textfield; }
+    input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+    input[type="number"]:focus { border-color:var(--blue); background:#fff; box-shadow:0 0 0 3px rgba(20,105,220,.1); }
+
+    .venta-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid #f1f5f9; }
+    .venta-row:last-child { border-bottom:none; padding-bottom:2px; }
+    .venta-row:first-child { padding-top:2px; }
+    .venta-info .t { font-weight:700; font-size:.9rem; }
+    .venta-info .d { font-size:.74rem; color:var(--muted); margin-top:2px; }
+    .stepper { display:flex; align-items:center; border:1.5px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; flex-shrink:0; }
+    .stepper button { width:34px; height:36px; border:none; background:var(--blue-light); color:var(--blue-dark); font-size:1.1rem; font-weight:700; cursor:pointer; font-family:inherit; }
+    .stepper button:hover { background:var(--blue-mid); }
+    .stepper input { width:54px; border:none; border-radius:0; text-align:center; font-weight:700; padding:8px 4px; background:#fff; }
+    .stepper input:focus { box-shadow:none; }
+
+    .obj-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+
+    .tier-live { display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:var(--radius-sm); background:var(--orange-light); border:1.5px solid #fed7aa; margin-bottom:4px; transition:background .2s,border-color .2s; }
+    .tier-live.ok { background:var(--green-light); border-color:#86efac; }
+    .tier-live.none { background:#f8fafc; border-color:var(--border); }
+    .tier-live .num { font-size:2.1rem; font-weight:800; line-height:1; color:var(--orange); font-variant-numeric:tabular-nums; min-width:92px; }
+    .tier-live.ok .num { color:var(--green); }
+    .tier-live.none .num { color:var(--muted); font-size:1.15rem; }
+    .tier-live .txt { font-size:.78rem; color:var(--muted); line-height:1.45; }
+    .tier-live .txt b { color:var(--text); }
+    .tier-live .cap { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:2px; }
+
+    /* MODO */
+    .modo { display:flex; align-items:center; justify-content:space-between; padding-top:14px; margin-top:4px; border-top:1px dashed var(--border); gap:10px; flex-wrap:wrap; }
+    .toggle { position:relative; width:36px; height:20px; flex-shrink:0; display:inline-block; }
+    .toggle input { opacity:0; width:0; height:0; }
+    .slider { position:absolute; cursor:pointer; inset:0; background:#cbd5e1; border-radius:20px; transition:background .2s; }
+    .slider::before { content:''; position:absolute; width:14px; height:14px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .toggle input:checked + .slider { background:var(--blue); }
+    .toggle input:checked + .slider::before { transform:translateX(16px); }
+    .modo-left { display:flex; align-items:center; gap:10px; font-size:.8rem; font-weight:600; }
+    select { padding:7px 10px; border:1.5px solid var(--orange); background:var(--orange-light); border-radius:6px; font-family:inherit; font-weight:700; color:var(--text); font-size:.85rem; outline:none; }
+    select:disabled { opacity:.35; border-color:var(--border); background:#f1f5f9; }
+
+    /* KPI */
+    .kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+    .kpi { background:#fff; border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:0 1px 6px rgba(0,0,0,.05); }
+    .kpi .k { font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+    .kpi .v { font-size:1.6rem; font-weight:800; margin-top:6px; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+    .kpi .s { font-size:.74rem; color:var(--muted); margin-top:4px; }
+    .kpi.main { background:var(--blue); border-color:var(--blue); }
+    .kpi.main .k, .kpi.main .s { color:rgba(255,255,255,.8); }
+    .kpi.main .v { color:#fff; font-size:1.85rem; }
+    .bar { height:8px; background:#eef2f7; border-radius:8px; margin-top:10px; overflow:hidden; position:relative; }
+    .bar > span { display:block; height:100%; background:var(--orange); border-radius:8px; transition:width .3s; }
+    .bar.ok > span { background:var(--green); }
+
+    /* TABLE */
+    table { width:100%; border-collapse:collapse; font-size:.875rem; }
+    thead tr { background:var(--blue-light); }
+    thead th { font-size:.63rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--blue-dark); padding:8px 14px; text-align:left; }
+    thead th:not(:first-child) { text-align:right; }
+    tbody td { padding:9px 14px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+    tbody tr:last-child td { border-bottom:none; }
+    tbody tr:hover { background:#fafbfd; }
+    .amount { text-align:right; font-variant-numeric:tabular-nums; }
+    .label-cell { font-weight:600; }
+    .meta-cell { font-size:.72rem; color:var(--muted); font-weight:400; display:block; margin-top:1px; }
+    .total-row td { background:var(--blue-light); font-weight:700; font-size:.95rem; color:var(--blue-dark); border-top:2px solid var(--blue-mid); }
+    tr.active td { background:var(--green-light); font-weight:700; }
+    tr.active td:first-child { box-shadow:inset 4px 0 0 var(--green); }
+    tr.row-inactive { opacity:.35; }
+
+    .pill { display:inline-block; font-weight:700; font-size:.82rem; padding:4px 11px; border-radius:6px; }
+    .pill-blue { background:var(--blue); color:#fff; }
+    .pill-green { background:var(--green); color:#fff; }
+    .pill-orange { background:var(--orange); color:#fff; }
+    .pill-red { background:var(--red); color:#fff; }
+    .mini-tag { display:inline-block; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:4px; text-transform:uppercase; letter-spacing:.05em; margin-left:6px; background:var(--green); color:#fff; vertical-align:middle; }
+    .diff { color:var(--green); font-weight:600; font-size:.78rem; }
+
+    /* NEXT */
+    .next { display:flex; gap:14px; align-items:center; background:var(--green-light); border:1px solid #bbf7d0; border-left:4px solid var(--green); border-radius:var(--radius-sm); padding:12px 16px; margin-top:1.25rem; font-size:.84rem; color:#14532d; }
+    .next.warn { background:var(--orange-light); border-color:#fed7aa; border-left-color:var(--orange); color:#92400e; }
+    .next .big { font-size:1.4rem; font-weight:800; flex-shrink:0; }
+
+    .nota { background:var(--orange-light); border:1px solid #fed7aa; border-left:4px solid var(--orange); border-radius:var(--radius-sm); padding:11px 16px; font-size:.8rem; color:#92400e; margin-top:1.5rem; line-height:1.55; }
+    .nota strong { color:#c2410c; }
+
+    /* CONFIG */
+    details.cfg { margin-top:1.5rem; }
+    details.cfg summary { cursor:pointer; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); list-style:none; display:flex; align-items:center; gap:8px; }
+    details.cfg summary::before { content:'⚙'; }
+    details.cfg[open] summary { margin-bottom:.9rem; color:var(--blue); }
+    .cfg-table input { padding:5px 8px; font-size:.85rem; text-align:right; max-width:130px; margin-left:auto; display:block; }
+    .btn { background:var(--blue); color:#fff; border:none; border-radius:var(--radius-sm); padding:8px 14px; font-weight:700; font-size:.78rem; cursor:pointer; font-family:inherit; }
+    .btn.ghost { background:transparent; color:var(--blue); border:1.5px solid var(--blue-mid); }
+    .btn:hover { filter:brightness(1.05); }
+    .cfg-actions { display:flex; gap:8px; justify-content:flex-end; padding:12px 14px; border-top:1px solid var(--border); }
+
+    @media (max-width:760px) {
+      .layout, .kpis { grid-template-columns:1fr; }
+      .top-bar { padding:0 16px; }
+      .top-bar-badge { display:none; }
+      .top-bar img { height:34px; }
+      .top-bar-left { gap:12px; }
+      .top-bar-text h1 { font-size:.85rem; }
+      .top-bar-text p { display:none; }
+      thead th, tbody td { padding:8px 9px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <img src="data:image/png;base64,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CeSWN0b29fix7h96xETBvbDl2QWO1VNrtle2Gjqnc00TqeOQOdy8uxztJB102NL9sazjKccoX0Nouphpnu5xFJBHM2N/bnYJGu5HftN0eg69AucRMhrPnvN0nt8dBLWyvp46p9W1pPUTPDQ5+++yGt9fRfrW5Deq11e6ruM87rj5ZrHSHmdMWfVLiepI139fVatEHSjPMtGPfQBvD3UHkmAB8MbpWxdvLEpb5gZrpyh2tdNL6sOf5fYrSLXa71JBStLjEDFG98Bd3MT3NLoie/uFvXr3XMImQ19vllfMZnyPdKXcxeTsk997+K6C/wCc5XfW0bbpeZpvYpPOgc1jI3CXQHmOLAC+T3R77tu6d1ziJg6LKM3yjJoYIb1dDPFBIZWMZBHC0yHu9wja0Pf0+s7Z+aw6bJL3TZScohuD23h1S+qNVytLjK4kudojXUk+muq1KJkG8uGW5BX3Cor6ivHtFTTGkmdHBHGHxE7LdNaB3HfW183LK8huUVbHXXOWdteIfa+ZrdzeUNRlx1skbPXufXa0qJkHUN4hZk2wiyNvkopGw+QD5UfnCLt5Ym5fM5NdOXm1rprS11pya+2qGGG33GSGKAzckYa0t/TNa2UEEEODgxoIOx0C1CJkNEREQREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREH/9k=" alt="Teclab" />
+    <div class="top-bar-divider"></div>
+    <div class="top-bar-text">
+      <h1>Cotizador de Comisiones</h1>
+      <p>Escala multiplicada · Nuevo esquema de pago asesores</p>
+    </div>
+  </div>
+  <div class="top-bar-badge" id="badgeMes">Noviembre</div>
+</div>
+
+<div class="container">
+
+  <div class="section-label">✏️ Cargá tus ventas</div>
+  <div class="layout">
+
+    <div class="card">
+      <div class="card-header"><span class="hl"><span class="card-header-icon">🎯</span>Objetivo del mes</span></div>
+      <div class="card-body">
+        <div class="obj-row">
+          <div class="input-group">
+            <label for="objetivo">Objetivo (NI)</label>
+            <input type="number" id="objetivo" min="1" step="1" value="17" inputmode="numeric" />
+          </div>
+          <div class="input-group">
+            <label>Total NI logrados</label>
+            <input type="number" id="totalNI" readonly tabindex="-1" style="background:var(--blue-light);border-color:var(--blue-mid);font-weight:700;color:var(--blue-dark)" />
+          </div>
+        </div>
+        <div class="tier-live none" id="tierLive">
+          <div class="num" id="tlNum">—</div>
+          <div class="txt"><div class="cap">Tu escalón</div><span id="tlTxt">Cargá tus ventas</span></div>
+        </div>
+        <div class="modo">
+          <div class="modo-left">
+            <label class="toggle"><input type="checkbox" id="manual"><span class="slider"></span></label>
+            <span>Elegir escalón a mano</span>
+          </div>
+          <select id="tierSel" disabled></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="hl"><span class="card-header-icon">💳</span>Ventas por modalidad</span></div>
+      <div class="card-body">
+        <div class="venta-row">
+          <div class="venta-info"><div class="t">Arancel Total</div><div class="d">Pago total del período con TC</div></div>
+          <div class="stepper"><button data-t="total" data-d="-1">−</button><input type="number" id="q_total" min="0" value="0" inputmode="numeric"><button data-t="total" data-d="1">+</button></div>
+        </div>
+        <div class="venta-row">
+          <div class="venta-info"><div class="t">Arancel Medio</div><div class="d">Pago por bimestres con TC</div></div>
+          <div class="stepper"><button data-t="medio" data-d="-1">−</button><input type="number" id="q_medio" min="0" value="0" inputmode="numeric"><button data-t="medio" data-d="1">+</button></div>
+        </div>
+        <div class="venta-row">
+          <div class="venta-info"><div class="t">Suscripción</div><div class="d">Financiación Teclab</div></div>
+          <div class="stepper"><button data-t="susc" data-d="-1">−</button><input type="number" id="q_susc" min="0" value="0" inputmode="numeric"><button data-t="susc" data-d="1">+</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">📊 Resultado</div>
+  <div class="kpis">
+    <div class="kpi">
+      <div class="k">Cumplimiento</div>
+      <div class="v" id="kCump">0%</div>
+      <div class="bar" id="kBar"><span style="width:0%"></span></div>
+      <div class="s" id="kCumpS">—</div>
+    </div>
+    <div class="kpi">
+      <div class="k">Escalón aplicado</div>
+      <div class="v" id="kTier">—</div>
+      <div class="s" id="kTierS">—</div>
+    </div>
+    <div class="kpi main">
+      <div class="k">Comisión estimada</div>
+      <div class="v" id="kTotal">$ 0</div>
+      <div class="s" id="kTotalS">—</div>
+    </div>
+  </div>
+
+  <div id="nextBox"></div>
+
+  <div class="layout" style="margin-top:1.25rem">
+    <div class="card">
+      <div class="card-header"><span class="hl"><span class="card-header-icon">🧾</span>Detalle de la comisión</span></div>
+      <table>
+        <thead><tr><th>Modalidad</th><th>Cant.</th><th>Valor x venta</th><th>Subtotal</th></tr></thead>
+        <tbody id="detalle"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="hl"><span class="card-header-icon">📈</span>Tus ventas en cada escalón</span></div>
+      <table>
+        <thead><tr><th>%</th><th>NI necesarios</th><th>Cobrarías</th></tr></thead>
+        <tbody id="simul"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-label">📋 Escala multiplicada · <span id="mesLbl" style="margin-left:4px">Noviembre</span></div>
+  <div class="card">
+    <table>
+      <thead><tr><th>%</th><th>Arancel Total</th><th>Arancel Medio</th><th>Suscriptor</th></tr></thead>
+      <tbody id="escala"></tbody>
+    </table>
+  </div>
+
+  <div class="nota">
+    <strong>Recordá:</strong> es un esquema PxQ con escala multiplicada: el escalón que alcanzás según tu % de cumplimiento (NI logrados ÷ objetivo) define el valor que se paga por <strong>cada</strong> venta del mes. El % se redondea hacia abajo al escalón más cercano (ej: 78% paga como 70%), desde 110% en adelante se paga el valor de 110%, y por debajo de 50% no hay escalón. Los montos son una estimación de referencia.
+  </div>
+
+  <details class="cfg" id="cfg">
+    <summary>Editar escala (para próximos meses)</summary>
+    <div class="card">
+      <table class="cfg-table">
+        <thead><tr><th>%</th><th>Arancel Total</th><th>Arancel Medio</th><th>Suscriptor</th></tr></thead>
+        <tbody id="cfgBody"></tbody>
+      </table>
+      <div class="cfg-actions">
+        <button class="btn ghost" id="resetCfg">Volver a Noviembre</button>
+        <button class="btn" id="saveCfg">Aplicar escala</button>
+      </div>
+    </div>
+  </details>
+
+</div>
+
+<script>
+const DEFAULT = [
+  { pct: 50,  total: 60000, medio: 48000, susc: 30000 },
+  { pct: 60,  total: 66000, medio: 52800, susc: 33000 },
+  { pct: 70,  total: 72000, medio: 57600, susc: 36000 },
+  { pct: 80,  total: 78000, medio: 62400, susc: 39000 },
+  { pct: 90,  total: 84000, medio: 67200, susc: 42000 },
+  { pct: 100, total: 90000, medio: 72000, susc: 45000 },
+  { pct: 110, total: 96000, medio: 76800, susc: 48000 },
+];
+const KEY = 'teclab_cotizador_comisiones_v1';
+let SCALE = JSON.parse(JSON.stringify(DEFAULT));
+let state = { objetivo: 17, total: 0, medio: 0, susc: 0, manual: false, tier: 100 };
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (Array.isArray(d.scale) && d.scale.length) SCALE = d.scale;
+      if (d.state) state = Object.assign(state, d.state);
+    }
+  } catch (e) {}
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify({ scale: SCALE, state })); } catch (e) {} }
+
+const $ = id => document.getElementById(id);
+const fmt = n => '$ ' + Math.round(n).toLocaleString('es-AR');
+const LABELS = { total: 'Arancel Total', medio: 'Arancel Medio', susc: 'Suscripción' };
+const DESC = { total: 'Total del período con TC', medio: 'Bimestres con TC', susc: 'Financiación Teclab' };
+
+function tierFor(pct) {
+  let t = null;
+  for (const r of SCALE) if (pct >= r.pct) t = r;
+  return t;
+}
+function payAt(row) {
+  if (!row) return 0;
+  return state.total * row.total + state.medio * row.medio + state.susc * row.susc;
+}
+
+function render() {
+  const obj = Math.max(1, state.objetivo || 1);
+  const ni = state.total + state.medio + state.susc;
+  const cump = ni / obj * 100;
+  $('totalNI').value = ni;
+
+  const auto = tierFor(cump);
+  const row = state.manual ? SCALE.find(r => r.pct === +state.tier) : auto;
+  const pago = payAt(row);
+
+  // Escalón en vivo
+  const tl = $('tierLive');
+  tl.className = 'tier-live ' + (!row ? 'none' : (row.pct >= 100 ? 'ok' : ''));
+  $('tlNum').textContent = row ? row.pct + '%' : 'Sin escalón';
+  const pctTxt = (Math.round(cump * 10) / 10).toLocaleString('es-AR') + '%';
+  if (state.manual) $('tlTxt').innerHTML = 'Elegido a mano · cumplimiento real <b>' + pctTxt + '</b>';
+  else if (!row) $('tlTxt').innerHTML = ni ? `<b>${ni} de ${obj} NI</b> (${pctTxt}) · la escala arranca en ${SCALE[0].pct}%` : 'Cargá tus ventas';
+  else $('tlTxt').innerHTML = `<b>${ni} de ${obj} NI</b> · ${pctTxt} de cumplimiento<br>Pagás ${fmt(row.total)} / ${fmt(row.medio)} / ${fmt(row.susc)}`;
+
+  // KPIs
+  $('kCump').textContent = (Math.round(cump * 10) / 10).toLocaleString('es-AR') + '%';
+  const bar = $('kBar'); bar.querySelector('span').style.width = Math.min(cump / 110 * 100, 100) + '%';
+  bar.classList.toggle('ok', cump >= 100);
+  $('kCumpS').textContent = ni + ' de ' + obj + ' NI';
+  $('kTier').innerHTML = row ? row.pct + '%' : '<span style="color:var(--red)">Sin escalón</span>';
+  $('kTierS').textContent = state.manual ? 'Elegido a mano' : (row ? 'Según tu cumplimiento' : 'Necesitás llegar al ' + SCALE[0].pct + '%');
+  $('kTotal').textContent = fmt(pago);
+  $('kTotalS').textContent = ni ? 'Promedio ' + fmt(pago / ni) + ' por NI' : 'Cargá tus ventas';
+
+  // Detalle
+  let h = '';
+  ['total', 'medio', 'susc'].forEach(k => {
+    const v = row ? row[k] : 0, q = state[k];
+    h += `<tr class="${q ? '' : 'row-inactive'}"><td class="label-cell">${LABELS[k]}<span class="meta-cell">${DESC[k]}</span></td>
+      <td class="amount">${q}</td><td class="amount">${fmt(v)}</td><td class="amount">${fmt(q * v)}</td></tr>`;
+  });
+  h += `<tr class="total-row"><td>Total</td><td class="amount">${ni}</td><td></td><td class="amount">${fmt(pago)}</td></tr>`;
+  $('detalle').innerHTML = h;
+
+  // Simulador por escalón
+  h = '';
+  SCALE.forEach(r => {
+    const need = Math.ceil(r.pct / 100 * obj - 1e-9);
+    const p = payAt(r);
+    const isAct = row && r.pct === row.pct;
+    const reached = ni >= need;
+    const extra = p - pago;
+    h += `<tr class="${isAct ? 'active' : ''}">
+      <td><span class="pill ${isAct ? 'pill-green' : (reached ? 'pill-blue' : 'pill-orange')}">${r.pct}%</span></td>
+      <td class="amount">${need} NI${!reached ? `<span class="meta-cell">faltan ${need - ni}</span>` : ''}</td>
+      <td class="amount">${fmt(p)}${extra > 0 ? `<span class="meta-cell diff">+${fmt(extra).slice(2)}</span>` : ''}</td></tr>`;
+  });
+  $('simul').innerHTML = h;
+
+  // Próximo escalón
+  const next = SCALE.find(r => Math.ceil(r.pct / 100 * obj - 1e-9) > ni);
+  let nb = '';
+  if (!state.manual && next) {
+    const need = Math.ceil(next.pct / 100 * obj - 1e-9);
+    const falta = need - ni;
+    const salto = payAt(next) - pago;
+    if (!row) {
+      nb = `<div class="next warn"><span class="big">${falta}</span><div>NI te faltan para entrar a la escala (<b>${next.pct}%</b>). Desde ahí, cada venta del mes empieza a pagar.</div></div>`;
+    } else {
+      nb = `<div class="next"><span class="big">${falta}</span><div>NI más y pasás al <b>${next.pct}%</b>: tus ventas actuales pasan a valer <b>+${fmt(salto).slice(2)}</b> en total, y encima se suman las nuevas al valor del ${next.pct}%.</div></div>`;
+    }
+  } else if (!state.manual && row && row.pct === SCALE[SCALE.length - 1].pct) {
+    nb = `<div class="next"><span class="big">🏆</span><div>Estás en el escalón máximo (<b>${row.pct}%</b>). Cada venta extra suma al valor tope.</div></div>`;
+  }
+  $('nextBox').innerHTML = nb;
+
+  // Escala
+  h = '';
+  SCALE.forEach(r => {
+    const isAct = row && r.pct === row.pct;
+    h += `<tr class="${isAct ? 'active' : ''}"><td class="label-cell">${r.pct}%${isAct ? '<span class="mini-tag">Tu escalón</span>' : ''}</td>
+      <td class="amount">${fmt(r.total)}</td><td class="amount">${fmt(r.medio)}</td><td class="amount">${fmt(r.susc)}</td></tr>`;
+  });
+  $('escala').innerHTML = h;
+
+  save();
+}
+
+function buildSelect() {
+  $('tierSel').innerHTML = SCALE.map(r => `<option value="${r.pct}">${r.pct}%</option>`).join('');
+  $('tierSel').value = state.tier;
+  if (!$('tierSel').value) $('tierSel').value = SCALE[SCALE.length - 2]?.pct ?? SCALE[0].pct;
+}
+function buildCfg() {
+  $('cfgBody').innerHTML = SCALE.map((r, i) => `<tr><td><input type="number" data-i="${i}" data-k="pct" value="${r.pct}" style="max-width:70px;margin-left:0;text-align:left"></td>
+    ${['total', 'medio', 'susc'].map(k => `<td><input type="number" data-i="${i}" data-k="${k}" value="${r[k]}"></td>`).join('')}</tr>`).join('');
+}
+
+function bind() {
+  const num = v => Math.max(0, parseInt(v, 10) || 0);
+  $('objetivo').addEventListener('input', e => { state.objetivo = Math.max(1, num(e.target.value)); render(); });
+  ['total', 'medio', 'susc'].forEach(k => {
+    $('q_' + k).addEventListener('input', e => { state[k] = num(e.target.value); render(); });
+  });
+  document.querySelectorAll('.stepper button').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.t; state[k] = Math.max(0, state[k] + +b.dataset.d);
+    $('q_' + k).value = state[k]; render();
+  }));
+  $('manual').addEventListener('change', e => { state.manual = e.target.checked; $('tierSel').disabled = !state.manual; state.tier = +$('tierSel').value; render(); });
+  $('tierSel').addEventListener('change', e => { state.tier = +e.target.value; render(); });
+  $('saveCfg').addEventListener('click', () => {
+    const rows = SCALE.map(r => ({ ...r }));
+    document.querySelectorAll('#cfgBody input').forEach(inp => { rows[+inp.dataset.i][inp.dataset.k] = parseFloat(inp.value) || 0; });
+    SCALE = rows.sort((a, b) => a.pct - b.pct);
+    buildSelect(); buildCfg(); render();
+  });
+  $('resetCfg').addEventListener('click', () => { SCALE = JSON.parse(JSON.stringify(DEFAULT)); buildSelect(); buildCfg(); render(); });
+}
+
+load();
+$('objetivo').value = state.objetivo;
+['total', 'medio', 'susc'].forEach(k => $('q_' + k).value = state[k]);
+$('manual').checked = state.manual;
+$('tierSel').disabled = !state.manual;
+buildSelect(); buildCfg(); bind(); render();
+</script>
+</body>
+</html>
